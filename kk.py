@@ -114,7 +114,20 @@ def main():
         menu = ["Add Task", "View Tasks", "Update Task", "Delete Task", "Export Tasks", "Search Tasks", "Sort Tasks", "Task Statistics", "Logout"]
         choice = st.sidebar.selectbox("Menu", menu)
         
-        if choice == "View Tasks":
+        if choice == "Add Task":
+            st.subheader("📝 Add New Task")
+            title = st.text_input("Task Title")
+            description = st.text_area("Task Description")
+            priority = st.selectbox("Priority", ["High", "Medium", "Low"])
+            due_date = st.date_input("Due Date", min_value=datetime.today()).strftime("%Y-%m-%d")
+            tags = st.text_input("Tags (comma-separated)")
+            assigned_to = st.text_input("Assign To (optional)")
+            recurrence = st.selectbox("Recurrence", [None, "Daily", "Weekly", "Monthly"])
+            if st.button("Add Task"):
+                add_task(title, description, priority, due_date, tags, user, assigned_to, recurrence)
+                st.success("Task added successfully!")
+        
+        elif choice == "View Tasks":
             st.subheader("📋 Your Tasks")
             tasks = get_tasks(user)
             st.write(pd.DataFrame(tasks))
