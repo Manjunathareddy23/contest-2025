@@ -1,6 +1,7 @@
 import uuid
 import datetime
-from typing import Dict, Any
+from typing import Dict, Any, Optional, List
+import streamlit as st
 
 def generate_unique_id() -> str:
     """
@@ -31,27 +32,27 @@ def validate_task_input(title: str, description: str) -> Dict[str, Any]:
     Returns:
         Dictionary with validation result and message
     """
-    if not title:
+    if not title or len(title.strip()) == 0:
         return {
             "valid": False,
-            "message": "Title is required"
+            "message": "Task title cannot be empty"
         }
     
     if len(title) > 100:
         return {
             "valid": False,
-            "message": "Title must be 100 characters or less"
+            "message": "Task title is too long (maximum 100 characters)"
         }
     
-    if len(description) > 1000:
+    if not description or len(description.strip()) == 0:
         return {
             "valid": False,
-            "message": "Description must be 1000 characters or less"
+            "message": "Task description cannot be empty"
         }
     
     return {
         "valid": True,
-        "message": "Validation successful"
+        "message": "Task data is valid"
     }
 
 def format_remaining_days(due_date_str: str) -> str:
@@ -65,20 +66,22 @@ def format_remaining_days(due_date_str: str) -> str:
         Formatted string describing days remaining
     """
     try:
-        due_date = datetime.datetime.strptime(due_date_str, '%Y-%m-%d').date()
+        due_date = datetime.datetime.strptime(due_date_str, "%Y-%m-%d").date()
         today = datetime.date.today()
         days_remaining = (due_date - today).days
         
         if days_remaining < 0:
-            return f"Overdue by {abs(days_remaining)} days"
+            return f"<span class='due-date due-date-overdue'>Overdue by {abs(days_remaining)} day{'s' if abs(days_remaining) != 1 else ''}</span>"
         elif days_remaining == 0:
-            return "Due today"
+            return "<span class='due-date due-date-today'>Due today</span>"
         elif days_remaining == 1:
-            return "Due tomorrow"
+            return "<span class='due-date due-date-today'>Due tomorrow</span>"
+        elif days_remaining < 7:
+            return f"<span class='due-date due-date-upcoming'>Due in {days_remaining} days</span>"
         else:
-            return f"{days_remaining} days left"
+            return f"<span class='due-date'>Due in {days_remaining} days</span>"
     except (ValueError, TypeError):
-        return "No due date"
+        return "<span class='due-date'>Invalid date</span>"
 
 def priority_color(priority: str) -> str:
     """
@@ -90,11 +93,12 @@ def priority_color(priority: str) -> str:
     Returns:
         Color code for the priority
     """
-    return {
-        "Low": "#4286f4",      # Blue
-        "Medium": "#f49e42",   # Orange
-        "High": "#f44242"      # Red
-    }.get(priority, "#888888") # Default gray
+    priority_colors = {
+        "High": "#E74C3C",
+        "Medium": "#F39C12",
+        "Low": "#3498DB"
+    }
+    return priority_colors.get(priority, "#95A5A6")
 
 def status_color(status: str) -> str:
     """
@@ -106,8 +110,66 @@ def status_color(status: str) -> str:
     Returns:
         Color code for the status
     """
-    return {
-        "Not Started": "#888888",  # Gray
-        "In Progress": "#4286f4",  # Blue
-        "Completed": "#42f48f"     # Green
-    }.get(status, "#888888")       # Default gray
+    status_colors = {
+        "Completed": "#2ECC71",
+        "In Progress": "#3498DB",
+        "Not Started": "#95A5A6"
+    }
+    return status_colors.get(status, "#95A5A6")
+
+def format_tags(tags: Optional[List[str]]) -> str:
+    """
+    Format a list of tags as HTML.
+    
+    Args:
+        tags: List of tag strings
+        
+    Returns:
+        HTML-formatted tags
+    """
+    if not tags:
+        return ""
+    
+    # Ensure tags is a list
+    if isinstance(tags, str):
+        tags = [tag.strip() for tag in tags.split(",") if tag.strip()]
+    
+    formatted_tags = ""
+    for tag in tags:
+        formatted_tags += f"<span class='tag'>{tag}</span> "
+    
+    return formatted_tags
+
+def load_css() -> None:
+    """
+    Load custom CSS for the application.
+    """
+    with open("styles.css", "r") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+def format_priority(priority: str) -> str:
+    """
+    Format a priority level as an HTML badge.
+    
+    Args:
+        priority: Priority level ("Low", "Medium", or "High")
+        
+    Returns:
+        HTML-formatted priority badge
+    """
+    priority_class = f"badge badge-{priority.lower()}"
+    return f"<span class='{priority_class}'>{priority}</span>"
+
+def format_status(status: str) -> str:
+    """
+    Format a status as an HTML badge.
+    
+    Args:
+        status: Task status ("Not Started", "In Progress", or "Completed")
+        
+    Returns:
+        HTML-formatted status badge
+    """
+    status_lower = status.lower().replace(" ", "-")
+    status_class = f"badge badge-{status_lower}"
+    return f"<span class='{status_class}'>{status}</span>"
