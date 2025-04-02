@@ -111,10 +111,10 @@ def main():
     st.set_page_config(page_title='Task Manager', layout='wide')
     st.title("🚀 Advanced Task Manager")
     
-    menu = ["Login", "Add Task", "View Tasks", "Update Task", "Delete Task", "Export Tasks", "Search Tasks", "Sort Tasks", "Task Statistics", "Logout"]
-    choice = st.sidebar.selectbox("Menu", menu)
+    if 'authenticated_user' not in st.session_state:
+        st.session_state['authenticated_user'] = None
     
-    if choice == "Login":
+    if st.session_state['authenticated_user'] is None:
         st.subheader("🔐 User Login")
         username = st.text_input("Username")
         password = st.text_input("Password", type="password")
@@ -122,11 +122,14 @@ def main():
             if username in USERS and USERS[username] == password:
                 st.session_state['authenticated_user'] = username
                 st.success(f"Welcome, {username}!")
+                st.experimental_rerun()
             else:
                 st.error("Invalid credentials!")
-    
-    elif 'authenticated_user' in st.session_state:
+    else:
         user = st.session_state['authenticated_user']
+        menu = ["Add Task", "View Tasks", "Update Task", "Delete Task", "Export Tasks", "Search Tasks", "Sort Tasks", "Task Statistics", "Logout"]
+        choice = st.sidebar.selectbox("Menu", menu)
+        
         if choice == "Add Task":
             st.subheader("📌 Add New Task")
             title = st.text_input("Task Title")
@@ -145,8 +148,9 @@ def main():
                     st.error("Please enter a title.")
         
         elif choice == "Logout":
-            del st.session_state['authenticated_user']
+            st.session_state['authenticated_user'] = None
             st.success("Logged out successfully!")
+            st.experimental_rerun()
 
 if __name__ == "__main__":
     main()
