@@ -17,7 +17,7 @@ def load_tasks():
         return []
 
 def save_tasks(tasks):
-    with open(TASKS_FILE, "w") as file:
+    with open(TASKS_FILE, "w", encoding="utf-8") as file:
         json.dump(tasks, file, indent=4)
 
 def add_task(title, description, priority, due_date, tags, user):
@@ -28,7 +28,7 @@ def add_task(title, description, priority, due_date, tags, user):
 
 def get_tasks(user):
     tasks = load_tasks()
-    return [task for task in tasks if task['User'] == user]
+    return [task for task in tasks if task.get('User') == user]
 
 def update_task(task_id, status):
     tasks = load_tasks()
@@ -51,9 +51,9 @@ def export_tasks(user, file_format):
     df = pd.DataFrame(tasks)
     file_path = f"tasks.{file_format.lower()}"
     if file_format == "CSV":
-        df.to_csv(file_path, index=False)
+        df.to_csv(file_path, index=False, encoding="utf-8")
     elif file_format == "JSON":
-        df.to_json(file_path, orient="records")
+        df.to_json(file_path, orient="records", force_ascii=False)
     return f"Tasks exported as {file_format} successfully! File: {file_path}"
 
 def main():
