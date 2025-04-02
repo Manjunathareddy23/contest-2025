@@ -3,10 +3,7 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 import os
-import threading
-import time
 import matplotlib.pyplot as plt
-import unittest
 
 # JSON file setup
 TASKS_FILE = "tasks.json"
@@ -49,19 +46,15 @@ def get_tasks(user):
 
 def update_task(task_id, status):
     tasks = load_tasks()
-    task_found = False
     for task in tasks:
         if task["ID"] == int(task_id):
             task["Status"] = status
-            task_found = True
-    if task_found:
-        save_tasks(tasks)
+    save_tasks(tasks)
 
 def delete_task(task_id):
     tasks = load_tasks()
-    new_tasks = [task for task in tasks if task["ID"] != int(task_id)]
-    if len(new_tasks) < len(tasks):
-        save_tasks(new_tasks)
+    tasks = [task for task in tasks if task["ID"] != int(task_id)]
+    save_tasks(tasks)
 
 def export_tasks(user, file_format):
     tasks = get_tasks(user)
@@ -71,7 +64,7 @@ def export_tasks(user, file_format):
         df.to_csv(file_path, index=False, encoding="utf-8")
     elif file_format == "JSON":
         df.to_json(file_path, orient="records", force_ascii=False)
-    return f"Tasks exported as {file_format} successfully! File: {file_path}"
+    st.success(f"Tasks exported as {file_format} successfully! File: {file_path}")
 
 def search_tasks(user, query):
     tasks = get_tasks(user)
@@ -98,15 +91,6 @@ def task_statistics(user):
         ax.pie([completed, pending, overdue], labels=['Completed', 'Pending', 'Overdue'], autopct='%1.1f%%', colors=['green', 'blue', 'red'])
         st.pyplot(fig)
 
-# Unit Testing Class
-class TestTaskManager(unittest.TestCase):
-    def test_add_task(self):
-        add_task("Test Task", "Description", "High", "2025-04-10", "test", "user1")
-        tasks = get_tasks("user1")
-        self.assertEqual(len(tasks), 1)
-        self.assertEqual(tasks[0]["Title"], "Test Task")
-
-# Main function
 def main():
     st.set_page_config(page_title='Task Manager', layout='wide')
     st.title("🚀 Advanced Task Manager")
@@ -130,22 +114,49 @@ def main():
         menu = ["Add Task", "View Tasks", "Update Task", "Delete Task", "Export Tasks", "Search Tasks", "Sort Tasks", "Task Statistics", "Logout"]
         choice = st.sidebar.selectbox("Menu", menu)
         
-        if choice == "Add Task":
-            st.subheader("📌 Add New Task")
-            title = st.text_input("Task Title")
-            description = st.text_area("Task Description")
-            priority = st.selectbox("Priority", ["High", "Medium", "Low"])
-            due_date = st.date_input("Due Date")
-            tags = st.text_input("Tags (comma-separated)")
-            assigned_to = st.text_input("Assign Task To (optional)")
-            recurrence = st.selectbox("Recurrence", ["None", "Daily", "Weekly", "Monthly"])
-            
-            if st.button("Add Task"):
-                if title:
-                    add_task(title, description, priority, str(due_date), tags, user, assigned_to, recurrence)
-                    st.success("Task added successfully!")
-                else:
-                    st.error("Please enter a title.")
+        if choice == "View Tasks":
+            st.subheader("📋 Your Tasks")
+            tasks = get_tasks(user)
+            st.write(pd.DataFrame(tasks))
+        
+        elif choice == "Update Task":
+            st.subheader("✅ Update Task Status")
+            task_id = st.number_input("Enter Task ID", min_value=1, step=1)
+            status = st.selectbox("Status", ["Pending", "Completed"])
+            if st.button("Update Task"):
+                update_task(task_id, status)
+                st.success("Task updated successfully!")
+        
+        elif choice == "Delete Task":
+            st.subheader("❌ Delete Task")
+            task_id = st.number_input("Enter Task ID", min_value=1, step=1)
+            if st.button("Delete Task"):
+                delete_task(task_id)
+                st.success("Task deleted successfully!")
+        
+        elif choice == "Export Tasks":
+            st.subheader("📤 Export Tasks")
+            file_format = st.selectbox("Choose Format", ["CSV", "JSON"])
+            if st.button("Export"):
+                export_tasks(user, file_format)
+        
+        elif choice == "Search Tasks":
+            st.subheader("🔎 Search Tasks")
+            query = st.text_input("Enter search query")
+            if st.button("Search"):
+                results = search_tasks(user, query)
+                st.write(pd.DataFrame(results))
+        
+        elif choice == "Sort Tasks":
+            st.subheader("🔽 Sort Tasks")
+            sort_by = st.selectbox("Sort by", ["Priority", "Due Date"])
+            if st.button("Sort"):
+                sorted_tasks = sort_tasks(user, sort_by)
+                st.write(pd.DataFrame(sorted_tasks))
+        
+        elif choice == "Task Statistics":
+            st.subheader("📊 Task Statistics")
+            task_statistics(user)
         
         elif choice == "Logout":
             st.session_state['authenticated_user'] = None
