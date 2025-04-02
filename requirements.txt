@@ -6,3 +6,4 @@ typing
 streamlit
 plotly
 uuid
+python-dotenv
