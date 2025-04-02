@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import os
 import threading
 import time
+import matplotlib.pyplot as plt
 
 # JSON file setup
 TASKS_FILE = "tasks.json"
@@ -24,7 +25,7 @@ def save_tasks(tasks):
     with open(TASKS_FILE, "w", encoding="utf-8") as file:
         json.dump(tasks, file, indent=4)
 
-def add_task(title, description, priority, due_date, tags, user, recurrence=None):
+def add_task(title, description, priority, due_date, tags, user, assigned_to=None, recurrence=None):
     tasks = load_tasks()
     task_id = len(tasks) + 1
     tasks.append({
@@ -36,13 +37,14 @@ def add_task(title, description, priority, due_date, tags, user, recurrence=None
         "Due Date": due_date,
         "Tags": tags,
         "User": user,
+        "Assigned To": assigned_to,
         "Recurrence": recurrence
     })
     save_tasks(tasks)
 
 def get_tasks(user):
     tasks = load_tasks()
-    return [task for task in tasks if task.get('User') == user]
+    return [task for task in tasks if task.get('User') == user or task.get('Assigned To') == user]
 
 def update_task(task_id, status):
     tasks = load_tasks()
@@ -70,12 +72,10 @@ def export_tasks(user, file_format):
         df.to_json(file_path, orient="records", force_ascii=False)
     return f"Tasks exported as {file_format} successfully! File: {file_path}"
 
-# Search tasks
 def search_tasks(user, query):
     tasks = get_tasks(user)
     return [task for task in tasks if query.lower() in task['Title'].lower() or query.lower() in task['Tags'].lower()]
 
-# Sort tasks
 def sort_tasks(user, sort_by):
     tasks = get_tasks(user)
     if sort_by == "Priority":
@@ -85,25 +85,23 @@ def sort_tasks(user, sort_by):
         tasks.sort(key=lambda x: datetime.strptime(x["Due Date"], "%Y-%m-%d"))
     return tasks
 
-# Reminder system
-def check_reminders():
-    while True:
-        tasks = load_tasks()
-        now = datetime.now().strftime("%Y-%m-%d")
-        for task in tasks:
-            if task["Due Date"] == now and task["Status"] == "Pending":
-                print(f"Reminder: Task '{task['Title']}' is due today!")
-        time.sleep(86400)  # Check every 24 hours
-
-# Start the reminder thread
-reminder_thread = threading.Thread(target=check_reminders, daemon=True)
-reminder_thread.start()
+def task_statistics(user):
+    tasks = get_tasks(user)
+    df = pd.DataFrame(tasks)
+    if not df.empty:
+        completed = df[df['Status'] == 'Completed'].shape[0]
+        pending = df[df['Status'] == 'Pending'].shape[0]
+        overdue = df[(df['Status'] == 'Pending') & (df['Due Date'] < datetime.now().strftime("%Y-%m-%d"))].shape[0]
+        
+        fig, ax = plt.subplots()
+        ax.pie([completed, pending, overdue], labels=['Completed', 'Pending', 'Overdue'], autopct='%1.1f%%', colors=['green', 'blue', 'red'])
+        st.pyplot(fig)
 
 def main():
     st.set_page_config(page_title='Task Manager', layout='wide')
     st.title("🚀 Advanced Task Manager")
     
-    menu = ["Add Task", "View Tasks", "Update Task", "Delete Task", "Export Tasks", "Search Tasks", "Sort Tasks"]
+    menu = ["Add Task", "View Tasks", "Update Task", "Delete Task", "Export Tasks", "Search Tasks", "Sort Tasks", "Task Statistics"]
     choice = st.sidebar.selectbox("Menu", menu)
     user = st.sidebar.text_input("Enter your username")
     
@@ -114,11 +112,12 @@ def main():
         priority = st.selectbox("Priority", ["High", "Medium", "Low"])
         due_date = st.date_input("Due Date")
         tags = st.text_input("Tags (comma-separated)")
+        assigned_to = st.text_input("Assign Task To (optional)")
         recurrence = st.selectbox("Recurrence", ["None", "Daily", "Weekly", "Monthly"])
         
         if st.button("Add Task"):
             if title and user:
-                add_task(title, description, priority, str(due_date), tags, user, recurrence)
+                add_task(title, description, priority, str(due_date), tags, user, assigned_to, recurrence)
                 st.success("Task added successfully!")
             else:
                 st.error("Please enter a title and username.")
@@ -164,6 +163,10 @@ def main():
         if st.button("Sort"):
             sorted_tasks = sort_tasks(user, sort_by)
             st.dataframe(pd.DataFrame(sorted_tasks))
+    
+    elif choice == "Task Statistics":
+        st.subheader("📊 Task Statistics")
+        task_statistics(user)
 
 if __name__ == "__main__":
     main()
