@@ -2,11 +2,14 @@ import streamlit as st
 import json
 import pandas as pd
 from datetime import datetime
+import os
 
 # JSON file setup
 TASKS_FILE = "tasks.json"
 
 def load_tasks():
+    if not os.path.exists(TASKS_FILE):
+        save_tasks([])  # Create an empty JSON file if it doesn't exist
     try:
         with open(TASKS_FILE, "r") as file:
             return json.load(file)
@@ -29,24 +32,29 @@ def get_tasks(user):
 
 def update_task(task_id, status):
     tasks = load_tasks()
+    task_found = False
     for task in tasks:
         if task["ID"] == int(task_id):
             task["Status"] = status
-    save_tasks(tasks)
+            task_found = True
+    if task_found:
+        save_tasks(tasks)
 
 def delete_task(task_id):
     tasks = load_tasks()
-    tasks = [task for task in tasks if task["ID"] != int(task_id)]
-    save_tasks(tasks)
+    new_tasks = [task for task in tasks if task["ID"] != int(task_id)]
+    if len(new_tasks) < len(tasks):  # Only save if a task was actually deleted
+        save_tasks(new_tasks)
 
 def export_tasks(user, file_format):
     tasks = get_tasks(user)
     df = pd.DataFrame(tasks)
+    file_path = f"tasks.{file_format.lower()}"
     if file_format == "CSV":
-        df.to_csv("tasks.csv", index=False)
+        df.to_csv(file_path, index=False)
     elif file_format == "JSON":
-        df.to_json("tasks.json", orient="records")
-    return f"Tasks exported as {file_format} successfully!"
+        df.to_json(file_path, orient="records")
+    return f"Tasks exported as {file_format} successfully! File: {file_path}"
 
 def main():
     st.set_page_config(page_title='Task Manager', layout='wide')
