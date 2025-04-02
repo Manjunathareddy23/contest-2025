@@ -111,7 +111,7 @@ def main():
     st.set_page_config(page_title='Task Manager', layout='wide')
     st.title("🚀 Advanced Task Manager")
     
-    menu = ["Login", "Add Task", "View Tasks", "Update Task", "Delete Task", "Export Tasks", "Search Tasks", "Sort Tasks", "Task Statistics"]
+    menu = ["Login", "Add Task", "View Tasks", "Update Task", "Delete Task", "Export Tasks", "Search Tasks", "Sort Tasks", "Task Statistics", "Logout"]
     choice = st.sidebar.selectbox("Menu", menu)
     
     if choice == "Login":
@@ -144,11 +144,9 @@ def main():
                 else:
                     st.error("Please enter a title.")
         
-        elif choice == "View Tasks":
-            st.subheader("📋 Your Tasks")
-            tasks = get_tasks(user)
-            df = pd.DataFrame(tasks)
-            st.dataframe(df)
+        elif choice == "Logout":
+            del st.session_state['authenticated_user']
+            st.success("Logged out successfully!")
 
 if __name__ == "__main__":
     main()
