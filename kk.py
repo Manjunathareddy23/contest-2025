@@ -122,7 +122,7 @@ def main():
             if username in USERS and USERS[username] == password:
                 st.session_state['authenticated_user'] = username
                 st.success(f"Welcome, {username}!")
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.error("Invalid credentials!")
     else:
@@ -150,7 +150,7 @@ def main():
         elif choice == "Logout":
             st.session_state['authenticated_user'] = None
             st.success("Logged out successfully!")
-            st.experimental_rerun()
+            st.rerun()
 
 if __name__ == "__main__":
     main()
