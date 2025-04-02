@@ -6,12 +6,13 @@ import os
 import threading
 import time
 import matplotlib.pyplot as plt
+import unittest
 
 # JSON file setup
 TASKS_FILE = "tasks.json"
+USERS = {"user1": "pass1", "user2": "pass2", "user3": "pass3", "user4": "pass4", "user5": "pass5"}
 
 # Load and save tasks
-
 def load_tasks():
     if not os.path.exists(TASKS_FILE):
         save_tasks([])
@@ -97,76 +98,57 @@ def task_statistics(user):
         ax.pie([completed, pending, overdue], labels=['Completed', 'Pending', 'Overdue'], autopct='%1.1f%%', colors=['green', 'blue', 'red'])
         st.pyplot(fig)
 
+# Unit Testing Class
+class TestTaskManager(unittest.TestCase):
+    def test_add_task(self):
+        add_task("Test Task", "Description", "High", "2025-04-10", "test", "user1")
+        tasks = get_tasks("user1")
+        self.assertEqual(len(tasks), 1)
+        self.assertEqual(tasks[0]["Title"], "Test Task")
+
+# Main function
 def main():
     st.set_page_config(page_title='Task Manager', layout='wide')
     st.title("🚀 Advanced Task Manager")
     
-    menu = ["Add Task", "View Tasks", "Update Task", "Delete Task", "Export Tasks", "Search Tasks", "Sort Tasks", "Task Statistics"]
+    menu = ["Login", "Add Task", "View Tasks", "Update Task", "Delete Task", "Export Tasks", "Search Tasks", "Sort Tasks", "Task Statistics"]
     choice = st.sidebar.selectbox("Menu", menu)
-    user = st.sidebar.text_input("Enter your username")
     
-    if choice == "Add Task":
-        st.subheader("📌 Add New Task")
-        title = st.text_input("Task Title")
-        description = st.text_area("Task Description")
-        priority = st.selectbox("Priority", ["High", "Medium", "Low"])
-        due_date = st.date_input("Due Date")
-        tags = st.text_input("Tags (comma-separated)")
-        assigned_to = st.text_input("Assign Task To (optional)")
-        recurrence = st.selectbox("Recurrence", ["None", "Daily", "Weekly", "Monthly"])
-        
-        if st.button("Add Task"):
-            if title and user:
-                add_task(title, description, priority, str(due_date), tags, user, assigned_to, recurrence)
-                st.success("Task added successfully!")
+    if choice == "Login":
+        st.subheader("🔐 User Login")
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        if st.button("Login"):
+            if username in USERS and USERS[username] == password:
+                st.session_state['authenticated_user'] = username
+                st.success(f"Welcome, {username}!")
             else:
-                st.error("Please enter a title and username.")
+                st.error("Invalid credentials!")
     
-    elif choice == "View Tasks":
-        st.subheader("📋 Your Tasks")
-        tasks = get_tasks(user)
-        df = pd.DataFrame(tasks)
-        st.dataframe(df)
-
-    elif choice == "Update Task":
-        st.subheader("✅ Update Task Status")
-        task_id = st.text_input("Task ID")
-        status = st.selectbox("New Status", ["Pending", "Completed", "In Progress"])
-        if st.button("Update Task"):
-            update_task(task_id, status)
-            st.success("Task updated successfully!")
-    
-    elif choice == "Delete Task":
-        st.subheader("❌ Delete Task")
-        task_id = st.text_input("Task ID")
-        if st.button("Delete Task"):
-            delete_task(task_id)
-            st.warning("Task deleted!")
-    
-    elif choice == "Export Tasks":
-        st.subheader("📤 Export Tasks")
-        file_format = st.selectbox("Select Format", ["CSV", "JSON"])
-        if st.button("Export"):
-            result = export_tasks(user, file_format)
-            st.success(result)
-    
-    elif choice == "Search Tasks":
-        st.subheader("🔍 Search Tasks")
-        query = st.text_input("Search by title or tags")
-        if st.button("Search"):
-            results = search_tasks(user, query)
-            st.dataframe(pd.DataFrame(results))
-    
-    elif choice == "Sort Tasks":
-        st.subheader("📌 Sort Tasks")
-        sort_by = st.selectbox("Sort by", ["Priority", "Due Date"])
-        if st.button("Sort"):
-            sorted_tasks = sort_tasks(user, sort_by)
-            st.dataframe(pd.DataFrame(sorted_tasks))
-    
-    elif choice == "Task Statistics":
-        st.subheader("📊 Task Statistics")
-        task_statistics(user)
+    elif 'authenticated_user' in st.session_state:
+        user = st.session_state['authenticated_user']
+        if choice == "Add Task":
+            st.subheader("📌 Add New Task")
+            title = st.text_input("Task Title")
+            description = st.text_area("Task Description")
+            priority = st.selectbox("Priority", ["High", "Medium", "Low"])
+            due_date = st.date_input("Due Date")
+            tags = st.text_input("Tags (comma-separated)")
+            assigned_to = st.text_input("Assign Task To (optional)")
+            recurrence = st.selectbox("Recurrence", ["None", "Daily", "Weekly", "Monthly"])
+            
+            if st.button("Add Task"):
+                if title:
+                    add_task(title, description, priority, str(due_date), tags, user, assigned_to, recurrence)
+                    st.success("Task added successfully!")
+                else:
+                    st.error("Please enter a title.")
+        
+        elif choice == "View Tasks":
+            st.subheader("📋 Your Tasks")
+            tasks = get_tasks(user)
+            df = pd.DataFrame(tasks)
+            st.dataframe(df)
 
 if __name__ == "__main__":
     main()
