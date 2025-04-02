@@ -1,0 +1,271 @@
+/* Global Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Main container styling */
+.main .block-container {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Custom header styling */
+h1 {
+  font-weight: 700;
+  color: #2C3E50;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #ECF0F1;
+  margin-bottom: 2rem;
+}
+
+h2, h3 {
+  font-weight: 600;
+  color: #34495E;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Form styling */
+[data-testid="stForm"] {
+  background-color: #F8FAFC;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+/* Input field styling */
+input[type="text"], textarea, .stSelectbox {
+  border-radius: 8px !important;
+  border: 1px solid #E2E8F0 !important;
+  padding: 10px !important;
+}
+
+input[type="text"]:focus, textarea:focus {
+  border-color: #3498DB !important;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2) !important;
+}
+
+/* Button styling */
+.stButton > button {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.stButton > button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Task container styling */
+[data-testid="stHorizontalBlock"] {
+  background-color: #FFFFFF;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+[data-testid="stHorizontalBlock"]:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Priority and status badges */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.badge-high {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #E74C3C;
+}
+
+.badge-medium {
+  background-color: rgba(243, 156, 18, 0.1);
+  color: #F39C12;
+}
+
+.badge-low {
+  background-color: rgba(52, 152, 219, 0.1);
+  color: #3498DB;
+}
+
+.badge-completed {
+  background-color: rgba(46, 204, 113, 0.1);
+  color: #2ECC71;
+}
+
+.badge-in-progress {
+  background-color: rgba(52, 152, 219, 0.1);
+  color: #3498DB;
+}
+
+.badge-not-started {
+  background-color: rgba(149, 165, 166, 0.1);
+  color: #95A5A6;
+}
+
+/* Tags styling */
+.tag {
+  display: inline-block;
+  background-color: #F1F5F9;
+  color: #64748B;
+  padding: 2px 8px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+/* Sidebar customization */
+.sidebar .sidebar-content {
+  background-color: #FFFFFF;
+  background-image: linear-gradient(#F8FAFC, #F1F5F9);
+}
+
+/* Custom divider style */
+hr {
+  border: none;
+  height: 1px;
+  background-color: #ECF0F1;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Due date styling */
+.due-date {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.due-date-overdue {
+  color: #E74C3C;
+}
+
+.due-date-today {
+  color: #F39C12;
+}
+
+.due-date-upcoming {
+  color: #3498DB;
+}
+
+/* Search and filter section */
+.search-filter {
+  background-color: #F8FAFC;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+}
+
+/* Statistics view styling */
+.stat-card {
+  background-color: #FFFFFF;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #3498DB;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: #7F8C8D;
+}
+
+/* Chart container styling */
+.chart-container {
+  background-color: #FFFFFF;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Hover animations */
+.hover-animation {
+  transition: all 0.3s ease;
+}
+
+.hover-animation:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Task completion animation */
+@keyframes task-completed {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.task-completed {
+  animation: task-completed 0.5s ease;
+}
+
+/* AI Suggestion container */
+.ai-suggestion {
+  background-color: #EFF6FF;
+  border-left: 4px solid #3B82F6;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.ai-suggestion-title {
+  color: #1E40AF;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Add a smooth load transition for the page */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .stat-label {
+    font-size: 0.875rem;
+  }
+}
