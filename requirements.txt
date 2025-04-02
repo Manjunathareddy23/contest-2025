@@ -1,9 +1,2 @@
-os
-json
-datetime
-pandas
-typing
 streamlit
-plotly
-uuid
-python-dotenv
+pandas
